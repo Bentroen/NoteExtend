@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Union
@@ -15,6 +16,11 @@ PathLike = Union[str, bytes, os.PathLike]
 
 def load_song(path: PathLike) -> pynbs.File:
     return pynbs.read(path)
+
+
+def sanitize_instrument_name(name: str) -> str:
+    # Replace all non-alphanumeric characters with underscores
+    return re.sub(r"\W+", "_", name).lower()
 
 
 def load_audio_file(path: PathLike) -> pydub.AudioSegment:
@@ -47,6 +53,8 @@ def build_resource_pack(song: pynbs.File) -> ResourcePack:
             print(f"Sound file {os.path.basename(sound_path)} not found; skipping")
             continue
 
+        ins_name = sanitize_instrument_name(instrument.name)
+
         # Create lower and higher-pitched versions of the sound
         sound_lower = change_speed(sound, 0.25).export(format="ogg")
         sound_default = sound.export(format="ogg")
@@ -54,23 +62,23 @@ def build_resource_pack(song: pynbs.File) -> ResourcePack:
 
         sound_asset_lower = Sound(
             _content=sound_lower.read(),
-            event=f"{instrument.name}_-1",
+            event=f"{ins_name}_-1",
             subtitle=subtitle,
         )
         sound_asset_default = Sound(
-            _content=sound_default.read(), event=f"{instrument.name}", subtitle=subtitle
+            _content=sound_default.read(), event=f"{ins_name}", subtitle=subtitle
         )
         sound_asset_higher = Sound(
             _content=sound_higher.read(),
-            event=f"{instrument.name}_1",
+            event=f"{ins_name}_1",
             subtitle=subtitle,
         )
 
         # Add the sounds to the resource pack
         base_path = "minecraft:block/note_block"
-        rp[f"{base_path}/{instrument.name}_-1"] = sound_asset_lower
-        rp[f"{base_path}/{instrument.name}"] = sound_asset_default
-        rp[f"{base_path}/{instrument.name}_1"] = sound_asset_higher
+        rp[f"{base_path}/{ins_name}_-1"] = sound_asset_lower
+        rp[f"{base_path}/{ins_name}"] = sound_asset_default
+        rp[f"{base_path}/{ins_name}_1"] = sound_asset_higher
 
     return rp
 
