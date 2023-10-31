@@ -7,8 +7,11 @@ license = "MIT"
 readme = "README.md"
 packages = [{include = "note_extend"}]
 
+[tool.poetry.scripts]
+build = "noteextend.pyinstaller:install"
+
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.13"
 pynbs = "^1.1.0"
 pydub = "^0.25.1"
 beet = "^0.97.0"
@@ -16,6 +19,7 @@ beet = "^0.97.0"
 [tool.poetry.group.dev.dependencies]
 black = "^23.10.1"
 isort = "^5.12.0"
+pyinstaller = "^6.1.0"
 
 [build-system]
 requires = ["poetry-core"]
