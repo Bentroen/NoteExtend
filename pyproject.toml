@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "note-extend"
+version = "0.1.0"
+description = "Generate extended notes for custom instruments in Note Block Studio"
+authors = ["Bentroen <bemcdc@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "note_extend"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pynbs = "^1.1.0"
+pydub = "^0.25.1"
+beet = "^0.97.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
