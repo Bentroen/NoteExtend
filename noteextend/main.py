@@ -102,7 +102,9 @@ def generate_pack(
     rp = build_resource_pack(song, callback)
 
     if not os.path.isfile(output_path):
-        output_path = Path(output_path, f"{os.path.basename(song_path)}.zip")
+        output_path = Path(
+            output_path, f"{os.path.splitext(os.path.basename(song_path))[0]}.zip"
+        )
 
     with ZipFile(output_path, "w") as zf:
         rp.dump(zf)
