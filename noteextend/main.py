@@ -107,6 +107,9 @@ def generate_pack(
     with ZipFile(output_path, "w") as zf:
         rp.dump(zf)
 
+    sound_count = len(rp.sounds)
+    print(f"Done! {sound_count} sounds were generated.")
+
 
 if __name__ == "__main__":
     generate_pack(SONG_PATH, OUTPUT_PATH)
