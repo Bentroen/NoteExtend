@@ -39,8 +39,8 @@ def build_resource_pack(song: pynbs.File) -> ResourcePack:
     sounds_folder = Path(Path.home(), "Minecraft Note Block Studio", "Data", "Sounds")
     subtitle = "subtitles.block.note_block.note"
 
-    for instrument in song.instruments:
-        print(f"Processing instrument {instrument.name}")
+    for i, instrument in enumerate(song.instruments):
+        print(f"Processing instrument #{i+1}: {instrument.name}")
 
         if not instrument.file:
             print(f"Instrument {instrument.name} has no sound file; skipping")
@@ -54,6 +54,8 @@ def build_resource_pack(song: pynbs.File) -> ResourcePack:
             print(f"Sound file {os.path.basename(sound_path)} not found; skipping")
             continue
 
+        if not instrument.name:
+            instrument.name = f"Instrument #{i+1}"
         ins_name = sanitize_instrument_name(instrument.name)
 
         # Create lower and higher-pitched versions of the sound
