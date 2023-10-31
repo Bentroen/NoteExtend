@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Union
+from zipfile import ZipFile
 
 import pydub
 import pynbs
@@ -86,7 +87,8 @@ def build_resource_pack(song: pynbs.File) -> ResourcePack:
 def main():
     song = load_song(SONG_PATH)
     rp = build_resource_pack(song)
-    rp.dump(Path(OUTPUT_PATH), zip=True)
+    with ZipFile(OUTPUT_PATH, "w") as zf:
+        rp.dump(zf)
 
 
 if __name__ == "__main__":
