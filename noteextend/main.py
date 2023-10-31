@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Union
+from typing import Any, Callable, Union
 from zipfile import ZipFile
 
 import pydub
@@ -34,13 +34,18 @@ def change_speed(sound: pydub.AudioSegment, speed: float) -> pydub.AudioSegment:
     ).set_frame_rate(sound.frame_rate)
 
 
-def build_resource_pack(song: pynbs.File) -> ResourcePack:
+def build_resource_pack(
+    song: pynbs.File, callback: Callable[..., Any] | None = None
+) -> ResourcePack:
     rp = ResourcePack()
     sounds_folder = Path(Path.home(), "Minecraft Note Block Studio", "Data", "Sounds")
     subtitle = "subtitles.block.note_block.note"
 
     for i, instrument in enumerate(song.instruments):
         print(f"Processing instrument #{i+1}: {instrument.name}")
+
+        if callback:
+            callback()
 
         if not instrument.file:
             print(f"Instrument {instrument.name} has no sound file; skipping")
@@ -86,12 +91,22 @@ def build_resource_pack(song: pynbs.File) -> ResourcePack:
     return rp
 
 
-def main():
-    song = load_song(SONG_PATH)
-    rp = build_resource_pack(song)
-    with ZipFile(OUTPUT_PATH, "w") as zf:
+def generate_pack(
+    song_path: PathLike,
+    output_path: PathLike,
+    callback: Callable[..., Any] | None = None,
+):
+    print("Generating pack...")
+
+    song = load_song(song_path)
+    rp = build_resource_pack(song, callback)
+
+    if not os.path.isfile(output_path):
+        output_path = Path(output_path, f"{os.path.basename(song_path)}.zip")
+
+    with ZipFile(output_path, "w") as zf:
         rp.dump(zf)
 
 
 if __name__ == "__main__":
-    main()
+    generate_pack(SONG_PATH, OUTPUT_PATH)
