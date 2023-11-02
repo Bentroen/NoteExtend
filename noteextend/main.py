@@ -102,20 +102,35 @@ def load_instruments_from_song(song: pynbs.File) -> dict[str, PathLike]:
     return instruments
 
 
+def load_instruments_from_path(path: PathLike) -> dict[str, PathLike]:
+    instruments: dict[str, PathLike] = {}
+
+    for file in os.listdir(path):
+        if os.path.splitext(file)[1] in (".wav", ".mp3", ".ogg"):
+            print(f"Analyzing sound file: {file}")
+            instruments[os.path.splitext(file)[0]] = Path(path, file)
+
+    return instruments
+
+
 def generate_pack(
-    song_path: PathLike,
+    source_path: PathLike,
     output_path: PathLike,
     callback: Callable[..., Any] | None = None,
 ):
     print("Generating pack...")
 
-    song = load_song(song_path)
-    instruments = load_instruments_from_song(song)
+    # Load instruments from either a song file or a folder of sounds
+    if os.path.isdir(source_path):
+        instruments = load_instruments_from_path(source_path)
+    else:
+        song = load_song(source_path)
+        instruments = load_instruments_from_song(song)
     rp = build_resource_pack(instruments, callback)
 
     if not os.path.isfile(output_path):
         output_path = Path(
-            output_path, f"{os.path.splitext(os.path.basename(song_path))[0]}.zip"
+            output_path, f"{os.path.splitext(os.path.basename(source_path))[0]}.zip"
         )
 
     with ZipFile(output_path, "w") as zf:
