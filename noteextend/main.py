@@ -1,7 +1,6 @@
 import os
 import re
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import Any, Callable, Union
 from zipfile import ZipFile
 
