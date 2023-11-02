@@ -34,23 +34,16 @@ def change_speed(sound: pydub.AudioSegment, speed: float) -> pydub.AudioSegment:
 
 
 def build_resource_pack(
-    song: pynbs.File, callback: Callable[..., Any] | None = None
+    instruments: dict[str, PathLike], callback: Callable[..., Any] | None = None
 ) -> ResourcePack:
     rp = ResourcePack()
-    sounds_folder = Path(Path.home(), "Minecraft Note Block Studio", "Data", "Sounds")
     subtitle = "subtitles.block.note_block.note"
 
-    for i, instrument in enumerate(song.instruments):
-        print(f"Processing instrument #{i+1}: {instrument.name}")
+    for i, (ins_name, sound_path) in enumerate(instruments.items()):
+        print(f"Processing instrument #{i+1}: {ins_name}")
 
         if callback:
             callback()
-
-        if not instrument.file:
-            print(f"Instrument {instrument.name} has no sound file; skipping")
-            continue
-
-        sound_path = Path(sounds_folder, instrument.file)
 
         try:
             sound = load_audio_file(sound_path)
@@ -58,9 +51,7 @@ def build_resource_pack(
             print(f"Sound file {os.path.basename(sound_path)} not found; skipping")
             continue
 
-        if not instrument.name:
-            instrument.name = f"Instrument #{i+1}"
-        ins_name = sanitize_instrument_name(instrument.name)
+        ins_name = sanitize_instrument_name(ins_name)
 
         # Create lower and higher-pitched versions of the sound
         sound_lower = change_speed(sound, 0.25).export(format="ogg")
@@ -90,6 +81,27 @@ def build_resource_pack(
     return rp
 
 
+def load_instruments_from_song(song: pynbs.File) -> dict[str, PathLike]:
+    sounds_folder = Path(Path.home(), "Minecraft Note Block Studio", "Data", "Sounds")
+
+    instruments = {}
+    for i, instrument in enumerate(song.instruments):
+        print(f"Analyzing instrument #{i+1}: {instrument.name}")
+
+        if not instrument.file:
+            print(f"Instrument {instrument.name} has no sound file; skipping")
+            continue
+
+        sound_path = Path(sounds_folder, instrument.file)
+
+        if not instrument.name:
+            instrument.name = f"Instrument #{i+1}"
+
+        instruments[instrument.name] = sound_path
+
+    return instruments
+
+
 def generate_pack(
     song_path: PathLike,
     output_path: PathLike,
@@ -98,7 +110,8 @@ def generate_pack(
     print("Generating pack...")
 
     song = load_song(song_path)
-    rp = build_resource_pack(song, callback)
+    instruments = load_instruments_from_song(song)
+    rp = build_resource_pack(instruments, callback)
 
     if not os.path.isfile(output_path):
         output_path = Path(
